@@ -1,0 +1,10 @@
+logs/*
+build/*
+dist/*
+sapysol.egg-info/*
+*__pycache__*
+build.sh
+publish.sh
+*.log
+*.db
+test*.py
