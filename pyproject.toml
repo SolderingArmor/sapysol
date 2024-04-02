@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "sapysol"
+version = "0.3.0"
+description = "SuperArmor's Solana Python wrapper."
+authors = ["Anton Platonov <anton@platonov.io>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.31.0"
+pytest = "^8.1.1"
+base58 = "^2.1.1"
+solana = "^0.33.0"
+anchorpy = "^0.20.0"
+typer = "^0.12.0"
+ipython = "^8.23.0"
+autoflake = "^2.3.1"
+black = "^24.3.0"
+genpy = "^2022.1"
+pybip39 = "^0.1.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
