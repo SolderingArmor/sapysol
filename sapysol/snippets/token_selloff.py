@@ -34,8 +34,8 @@ class SapysolTokenSelloff:
     def __init__(self,
                  connection:  Client,
                  walletsList: List[Keypair],
-                 tokenToSell: Union[str, Pubkey],
-                 tokenToBuy:  Union[str, Pubkey],
+                 tokenToSell: Union[str, bytes, Pubkey],
+                 tokenToBuy:  Union[str, bytes, Pubkey],
                  txParams:    SapysolTxParams    = SapysolTxParams(),
                  swapParams:  SapysolJupagParams = SapysolJupagParams(),
                  numThreads:  int                = 10):

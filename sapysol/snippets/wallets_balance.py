@@ -34,7 +34,7 @@ class SapysolWalletsBalance:
     def __init__(self,
                  connection:        Client,
                  pubkeysList:       List[Pubkey],
-                 tokenMint:         Union[str, Pubkey],
+                 tokenMint:         Union[str, bytes, Pubkey],
                  numThreads:        int  = 50):
 
         assert(all(isinstance(n, Pubkey) for n in pubkeysList))

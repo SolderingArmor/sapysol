@@ -25,10 +25,8 @@ from sapysol.helpers import EnsurePathExists,             \
                             ListToChunks,                 \
                             MakePubkey,                   \
                             MakeKeypair,                  \
-                            GetAccountInfoMultiple,       \
-                            GetAccountInfoMultipleParsed, \
-                            GetAccountInfo,               \
-                            GetAccountInfoParsed
+                            FetchAccount,                 \
+                            FetchAccounts
 
 from sapysol.ix import AtaInstruction,               \
                        GetOrCreateAtaIx,             \

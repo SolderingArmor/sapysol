@@ -36,7 +36,7 @@ import time
 class SapysolWalletReadonly:
     # ========================================
     #
-    def __init__(self, connection: Client, pubkey: Union[str, Pubkey]):
+    def __init__(self, connection: Client, pubkey: Union[str, bytes, Pubkey]):
         self.CONNECTION: Client  = connection
         self.PUBKEY:     Pubkey  = MakePubkey(pubkey)
 

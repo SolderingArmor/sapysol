@@ -49,7 +49,7 @@ import logging
 class SapysolToken:
     # ========================================
     #
-    def __init__(self, connection: Client, tokenMint: Union[str, Pubkey]):
+    def __init__(self, connection: Client, tokenMint: Union[str, bytes, Pubkey]):
         self.CONNECTION:    Client          = connection
         self.TOKEN_MINT:    Pubkey          = MakePubkey(tokenMint)
         self.TOKEN_INFO:    TokenCacheEntry = TokenCache.GetToken(connection=connection, tokenMint=tokenMint)
@@ -57,14 +57,14 @@ class SapysolToken:
 
     # ========================================
     #
-    def AccountExists(self, accountAddress: Union[str, Pubkey]) -> bool:
+    def AccountExists(self, accountAddress: Union[str, bytes, Pubkey]) -> bool:
         pubkey: Pubkey  = MakePubkey(accountAddress)
         result: Account = self.CONNECTION.get_account_info(pubkey=pubkey).value
         return result is not None
 
     # ========================================
     #
-    def GetAccountBalanceLamports(self, accountAddress: Union[str, Pubkey]):
+    def GetAccountBalanceLamports(self, accountAddress: Union[str, bytes, Pubkey]):
         pubkey: Pubkey = MakePubkey(accountAddress)
         result = self.TOKEN.get_balance(pubkey=pubkey)
         if isinstance(result, InvalidParamsMessage):
@@ -73,19 +73,19 @@ class SapysolToken:
 
     # ========================================
     #
-    def GetAccountBalance(self, accountAddress: Union[str, Pubkey]) -> float:
+    def GetAccountBalance(self, accountAddress: Union[str, bytes, Pubkey]) -> float:
         balance: int = self.GetAccountBalanceLamports(accountAddress)
         return balance / 10**self.TOKEN_INFO.decimals
 
     # ========================================
     #
-    def GetWalletAta(self, walletAddress: Union[str, Pubkey]) -> Pubkey:
+    def GetWalletAta(self, walletAddress: Union[str, bytes, Pubkey]) -> Pubkey:
         pubkey: Pubkey = MakePubkey(walletAddress)
         return get_associated_token_address(owner=pubkey, mint=self.TOKEN_MINT)
     
     # ========================================
     #
-    def CreateWalletAtaBatch(self, walletAddresses: List[Union[str, Pubkey]], payer: Union[str, Keypair]) -> List[Pubkey]:
+    def CreateWalletAtaBatch(self, walletAddresses: List[Union[str, bytes, Pubkey]], payer: Union[str, Keypair]) -> List[Pubkey]:
         # Empty transaction is 168 bytes, each ATA creation is 138,
         # limit size is 1232 bytes, that leaves us with up to 7 ATA
         # creations per transaction.
@@ -111,7 +111,7 @@ class SapysolToken:
     # ========================================
     #
     def CreateWalletAta(self, 
-                        walletAddress: Union[str, Pubkey], 
+                        walletAddress: Union[str, bytes, Pubkey], 
                         payer:         Union[str, Keypair]) -> Pubkey:
         ataIx: AtaInstruction = GetOrCreateAtaIx(connection=self.CONNECTION, tokenMint=self.TOKEN_MINT, owner=MakePubkey(walletAddress))
         if not ataIx.ix:
@@ -123,7 +123,7 @@ class SapysolToken:
 
     # ========================================
     #
-    def GetWalletAccountAddresses(self, walletAddress: Union[str, Pubkey]) -> List[Pubkey]:
+    def GetWalletAccountAddresses(self, walletAddress: Union[str, bytes, Pubkey]) -> List[Pubkey]:
         owner: Pubkey = MakePubkey(walletAddress)
         accounts = self.TOKEN.get_accounts_by_owner_json_parsed(owner=owner)
         account: RpcKeyedAccountJsonParsed
@@ -131,13 +131,13 @@ class SapysolToken:
 
     # ========================================
     #
-    def GetWalletBalanceLamports(self, walletAddress: Union[str, Pubkey]) -> int:
+    def GetWalletBalanceLamports(self, walletAddress: Union[str, bytes, Pubkey]) -> int:
         accountAddress: Pubkey = self.GetWalletAta(walletAddress)
         return self.GetAccountBalanceLamports(accountAddress=accountAddress)
 
     # ========================================
     #
-    def GetWalletBalance(self, walletAddress: Union[str, Pubkey]) -> float:
+    def GetWalletBalance(self, walletAddress: Union[str, bytes, Pubkey]) -> float:
         accountAddress: Pubkey = self.GetWalletAta(walletAddress)
         return self.GetAccountBalance(accountAddress=accountAddress)
 

@@ -97,7 +97,7 @@ class SapysolJupag:
     # ========================================
     # 
     @staticmethod
-    def GetSwapTxBase64(walletAddress: Union[str, Pubkey],
+    def GetSwapTxBase64(walletAddress: Union[str, bytes, Pubkey],
                         coinQuote:     dict,
                         swapParams:    SapysolJupagParams = SapysolJupagParams()
                        ) -> str:

@@ -39,9 +39,9 @@ class AtaInstruction(NamedTuple):
     ix:     Instruction = None
 
 def GetOrCreateAtaIx(connection: Client,
-                     tokenMint:  Union[str, Pubkey],
-                     owner:      Union[str, Pubkey],
-                     payer:      Union[str, Pubkey] = None,
+                     tokenMint:  Union[str, bytes, Pubkey],
+                     owner:      Union[str, bytes, Pubkey],
+                     payer:      Union[str, bytes, Pubkey] = None,
                      allowOwnerOffCurve: bool = True) -> AtaInstruction:
 
     _tokenMint = MakePubkey(tokenMint)
@@ -66,12 +66,12 @@ def GetOrCreateAtaIx(connection: Client,
 # If the same sender address is used, each next transfer takes 50 bytes per instruction.
 # But also may vary, because it depends.
 #
-def GetTransferTokenIxInternal(tokenProgramID: Union[str, Pubkey],
-                               tokenMint:      Union[str, Pubkey],
+def GetTransferTokenIxInternal(tokenProgramID: Union[str, bytes, Pubkey],
+                               tokenMint:      Union[str, bytes, Pubkey],
                                decimals:       int,
-                               senderWallet:   Union[str, Pubkey],
-                               senderAta:      Union[str, Pubkey],
-                               receiverAta:    Union[str, Pubkey],
+                               senderWallet:   Union[str, bytes, Pubkey],
+                               senderAta:      Union[str, bytes, Pubkey],
+                               receiverAta:    Union[str, bytes, Pubkey],
                                amountLamports: int) -> Instruction:
     return splToken.transfer_checked(
         splToken.TransferCheckedParams(
@@ -89,9 +89,9 @@ def GetTransferTokenIxInternal(tokenProgramID: Union[str, Pubkey],
 # ===============================================================================
 #
 def GetTransferTokenIx(connection:       Client,
-                       tokenMint:        Union[str, Pubkey],
-                       senderWallet:     Union[str, Pubkey],
-                       receiverWallet:   Union[str, Pubkey],
+                       tokenMint:        Union[str, bytes, Pubkey],
+                       senderWallet:     Union[str, bytes, Pubkey],
+                       receiverWallet:   Union[str, bytes, Pubkey],
                        amount:           int,
                        amountIsLamports: bool = True,
                        allowCreateAta:   bool = True) -> List[Instruction]:
@@ -118,8 +118,8 @@ def GetTransferTokenIx(connection:       Client,
 
 # ===============================================================================
 #
-def WrapSolInstructions(source:   Union[str, Pubkey], 
-                        dest:     Union[str, Pubkey], 
+def WrapSolInstructions(source:   Union[str, bytes, Pubkey], 
+                        dest:     Union[str, bytes, Pubkey], 
                         lamports: int) -> List[Instruction]:
 
     _source = MakePubkey(source) # preserve original `source`
@@ -135,7 +135,7 @@ def WrapSolInstructions(source:   Union[str, Pubkey],
 
 # ===============================================================================
 # 
-def UnwrapSolInstruction(owner: Union[str, Pubkey], 
+def UnwrapSolInstruction(owner: Union[str, bytes, Pubkey], 
                          allowOwnerOffCurve: bool = True) -> Instruction:
 
     _owner = MakePubkey(owner) # preserve original `owner`

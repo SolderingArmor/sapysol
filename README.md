@@ -18,13 +18,19 @@ Note: Requires Python >= 3.11.
 
 # Usage
 
-`sapysol` uses `Client` instead of `AsyncClient` for few reasons. 
+`sapysol` uses `Client` instead of `AsyncClient` for few reasons:
 * First - without `async` you can put more logic to Python constructors and simplify class creation;
 * Second - what is the point of `async` if you really use `await` in 100% of cases?
 
+Please use `threading` if you need parallel execution.
+
 ```py
 from sapysol import *
+
+# TODO
 ```
+
+TODO
 
 # Contributing
 TODO
@@ -34,6 +40,8 @@ TODO
 
 # Contact
 [Telegram](https://t.me/SuperArmor)
+
+Solana: `SAxxD7JGPQWqDihYDfD6mFp7JWz5xGrf9RXmE4BJWTS`
 
 # Disclaimer
 

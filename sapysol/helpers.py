@@ -19,10 +19,11 @@
 # =============================================================================
 # 
 from   solana.rpc.api                       import Client, Pubkey, Keypair, Commitment
-from   solana.rpc.types                     import TxOpts
+from   solana.rpc.commitment                import Commitment
 from   spl.token.client                     import Token
 from   spl.token.constants                  import ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID
 from   sapysol                              import *
+from   solders.account                      import Account, AccountJSON
 from   solders.transaction                  import VersionedTransaction, Signer
 from   solders.address_lookup_table_account import  AddressLookupTableAccount
 from   solders.transaction_status           import EncodedTransactionWithStatusMeta
@@ -130,51 +131,35 @@ def MakeKeypair(keypair: Union[str, bytes, Keypair]) -> Keypair:
 
 # ================================================================================
 #
-def GetAccountInfoMultiple(connection: Client, pubkeys: List[Union[str, Pubkey]]) -> List[Union[bytes, List[int]]]:
-    assert(isinstance(connection, Client))
-
-    pubkeysFinal: List[Pubkey] = [MakePubkey(pk) for pk in pubkeys]
-    results = connection.get_multiple_accounts(pubkeys=pubkeysFinal)
-    output: List[Union[bytes, List[int]]] = []
-
-    for account in results.value:
-        if account:
-            output.append(account.data)
-        else:
-            output.append(None)
-    return output
-
-# ================================================================================
-#
-def GetAccountInfoMultipleParsed(connection: Client, pubkeys: List[Union[str, Pubkey]]) -> List[Union[bytes, List[int]]]:
-    assert(isinstance(connection, Client))
-
-    pubkeysFinal: List[Pubkey] = [MakePubkey(pk) for pk in pubkeys]
-    results = connection.get_multiple_accounts_json_parsed(pubkeys=pubkeysFinal)
-    output: List[Union[bytes, List[int]]] = []
-
-    for account in results.value:
-        if NestedAttributeExists(target=account, attributePath="data.parsed"):
-            output.append(account.data.parsed)
-        else:
-            output.append(None)
-    return output
+def FetchAccounts(connection:    Client, 
+                  pubkeys:       List[Union[str, bytes, Pubkey]],
+                  chunkSize:     int = 100,
+                  requiredOwner: Union[str, bytes, Pubkey] = None,
+                  commitment:    Commitment = None,
+                  parseToJson:   bool = False) -> Union[List[Account], List[AccountJSON]]:
+    results = []
+    _pubkeys: List[Pubkey]       = [MakePubkey(pk) for pk in pubkeys]
+    chunks:   List[List[Pubkey]] = ListToChunks(baseList=_pubkeys, chunkSize=chunkSize)
+    func = connection.get_multiple_accounts_json_parsed if parseToJson else connection.get_multiple_accounts
+    for chunk in chunks:
+        entries: List[Account] = func(pubkeys=chunk, commitment=commitment).value
+        if requiredOwner is not None and not all(e is None or (e.owner==requiredOwner) for e in entries):
+            raise ValueError("Account does not belong to this program!")
+        results += entries
+    return results
 
 # ================================================================================
 #
-def GetAccountInfo(connection: Client, pubkey: Union[str, Pubkey]) -> Union[bytes, List[int]]:
-    assert(isinstance(connection, Client))
-
-    results = GetAccountInfoMultiple(connection=connection, pubkeys=[pubkey])
-    return results[0]
-
-# ================================================================================
-#
-def GetAccountInfoParsed(connection: Client, pubkey: Union[str, Pubkey]) -> Union[bytes, List[int]]:
-    assert(isinstance(connection, Client))
-
-    results = GetAccountInfoMultipleParsed(connection=connection, pubkeys=[pubkey])
-    return results[0]
+def FetchAccount(connection:    Client, 
+                 pubkey:        Union[str, bytes, Pubkey],
+                 requiredOwner: Union[str, bytes, Pubkey] = None,
+                 commitment:    Commitment = None,
+                 parseToJson:   bool = False) -> Union[Account, AccountJSON]:
+    return FetchAccounts(connection    = connection,
+                         pubkeys       = [pubkey],
+                         requiredOwner = requiredOwner,
+                         commitment    = commitment,
+                         parseToJson   = parseToJson)[0]
 
 # ================================================================================
 #
