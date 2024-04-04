@@ -137,6 +137,11 @@ class SapysolTx:
             return self.RAW_TX.serialize()
 
     # ========================================
+    #
+    def SetTxParams(self, txParams: SapysolTxParams) -> bytes:
+        self.TX_PARAMS: SapysolTxParams = txParams
+
+    # ========================================
     # 
     def Sign(self, signers: List[Signer] = None) -> "SapysolTx":
         if signers:
