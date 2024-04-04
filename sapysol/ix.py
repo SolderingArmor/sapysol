@@ -155,7 +155,7 @@ def UnwrapSolInstruction(owner: Union[str, bytes, Pubkey],
 def ComputeBudgetIx(units=1_400_000) -> Instruction:
     return set_compute_unit_limit(units=units)
 
-def ComputePriceIx(microLamports=71) -> Instruction:
+def ComputePriceIx(microLamports=1) -> Instruction:
     return set_compute_unit_price(micro_lamports=microLamports)
 
 # ===============================================================================
