@@ -26,7 +26,8 @@ from sapysol.helpers import EnsurePathExists,             \
                             MakePubkey,                   \
                             MakeKeypair,                  \
                             FetchAccount,                 \
-                            FetchAccounts
+                            FetchAccounts,                \
+                            DivmodJsBignumber
 
 from sapysol.ix import AtaInstruction,               \
                        GetOrCreateAtaIx,             \

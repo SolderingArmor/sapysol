@@ -161,6 +161,31 @@ def FetchAccount(connection:    Client,
                          commitment    = commitment,
                          parseToJson   = parseToJson)[0]
 
+
+# ===============================================================================
+# 
+def DivmodJsBignumber(dividend, divisor) -> tuple[int, int]:
+    """
+    Performs division to replicate JavaScript's division behavior accurately,
+    with quotient rounding towards zero and appropriate remainder calculation.
+    
+    :param dividend: The number to be divided.
+    :param divisor: The number by which to divide.
+    :return: A tuple (quotient, remainder) accurately mimicking JavaScript behavior.
+    """
+    if divisor == 0:
+        raise ValueError("Divisor cannot be zero.")
+    
+    quotient  = dividend // divisor
+    remainder = dividend %  divisor
+    
+    # Ensure remainder has the same sign as the divisor
+    if remainder != 0 and (dividend < 0) != (divisor < 0):
+        quotient += 1
+        remainder = remainder - divisor
+
+    return quotient, remainder
+
 # ================================================================================
 #
 # TODO: arweave https://github.com/Irys-xyz/gasless-uploader/blob/master/app/api/lazyFundSOL/route.ts
