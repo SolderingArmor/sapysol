@@ -8,6 +8,8 @@ Main goal of `sapysol` is an ease of Python developers onboarding to Solana.
 
 `sapysol` can also serve as a base layer for other wrappers because it simplifies `Pubkey`/`Keypair` management, creating and sending transactions, token instructions etc.
 
+WARNING! `sapysol` is currently in `alpha` mode, so, bugs, lack of tests and descriptions are expected.
+
 # Installation
 
 ```sh
@@ -33,15 +35,20 @@ from sapysol import *
 TODO
 
 # Contributing
-TODO
+
+All contributions are welcome! Although the devil is in the details:
+* One of the main requirements is to [b]keep the same coding style[/b] for all future changes.
+* `sapysol` is designed as a wrapper, one layer above `solders`/`solana-py`, don't expect it to do very narrow or specific tasks. If you need custom behavior in your case just go one level down and implement that using `solders`/`solana-py` in your local scripts.
 
 # Tests
+
 TODO
 
 # Contact
+
 [Telegram](https://t.me/SuperArmor)
 
-Solana: `SAxxD7JGPQWqDihYDfD6mFp7JWz5xGrf9RXmE4BJWTS`
+Donations: `SAxxD7JGPQWqDihYDfD6mFp7JWz5xGrf9RXmE4BJWTS`
 
 # Disclaimer
 
