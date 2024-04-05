@@ -29,7 +29,7 @@ from   typing                               import List, Any, TypedDict, Union, 
 from   dataclasses                          import dataclass, field
 from   datetime                             import datetime
 from   enum                                 import Enum
-from  .helpers                              import MakeKeypair, NestedAttributeExists
+from  .helpers                              import MakeKeypair, SapysolKeypair, NestedAttributeExists
 import base64
 import logging
 import time
@@ -54,13 +54,15 @@ class SapysolTxStatus(Enum):
     FAIL    = 3 # 100% Fail
     SUCCESS = 4 # 100% Success
 
+SapysolTxImportMode = Literal["auto", "legacy", "versioned"]
+
 # ================================================================================
 #
 class SapysolTx:
-    def __init__(self, connection: Client, payer: Union[str, Keypair], txParams: SapysolTxParams = SapysolTxParams()):
+    def __init__(self, connection: Client, payer: SapysolKeypair, txParams: SapysolTxParams = SapysolTxParams()):
 
         self.CONNECTION:       Client                                   = connection
-        self.PAYER:            Keypair                                  = MakeKeypair(payer)
+        self.PAYER:            Keypair                                  =  MakeKeypair(payer)
         self.SIGNERS:          List[Signer]                             = [MakeKeypair(payer)]
         self.TX_PARAMS:        SapysolTxParams                          = txParams
         self.CONFIRMED_TX:     EncodedTransactionWithStatusMeta         = None
@@ -103,7 +105,7 @@ class SapysolTx:
 
     # ========================================
     #
-    def FromBytes(self, b: bytes, importMode: Literal["auto", "legacy", "versioned"] = "auto") -> "SapysolTx":
+    def FromBytes(self, b: bytes, importMode: SapysolTxImportMode = "auto") -> "SapysolTx":
         match importMode:
             case "auto":
                 try:
@@ -118,7 +120,7 @@ class SapysolTx:
 
     # ========================================
     #
-    def FromBase64(self, b64: str, importMode: Literal["auto", "legacy", "versioned"] = "auto") -> "SapysolTx":
+    def FromBase64(self, b64: str, importMode: SapysolTxImportMode = "auto") -> "SapysolTx":
         b = base64.b64decode(b64)
         return self.FromBytes(b=b, importMode=importMode)
 
@@ -143,14 +145,15 @@ class SapysolTx:
 
     # ========================================
     # 
-    def Sign(self, signers: List[Signer] = None) -> "SapysolTx":
+    def Sign(self, signers: List[SapysolKeypair] = None) -> "SapysolTx":
         if signers:
-            self.SIGNERS = signers
+            self.SIGNERS = [MakeKeypair(signer) for signer in signers]
         if isinstance(self.RAW_TX, VersionedTransaction):
             self.RAW_TX = VersionedTransaction(message  = self.RAW_TX.message, 
                                                keypairs = self.SIGNERS if self.SIGNERS else [self.PAYER])
         elif isinstance(self.RAW_TX, Transaction):
-            self.RAW_TX.fee_payer = self.SIGNERS[0].pubkey()
+            self.RAW_TX.fee_payer = self.SIGNERS[0].pubkey() if (self.SIGNERS and isinstance(self.SIGNERS, list) and len(self.SIGNERS) > 0) \
+                               else self.PAYER.pubkey()
             self.RAW_TX.sign(*self.SIGNERS if self.SIGNERS else [self.PAYER])
 
         return self

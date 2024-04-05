@@ -23,7 +23,9 @@ from sapysol.helpers import EnsurePathExists,             \
                             NestedAttributeExists,        \
                             GetModulePath,                \
                             ListToChunks,                 \
+                            SapysolPubkey,                \
                             MakePubkey,                   \
+                            SapysolKeypair,               \
                             MakeKeypair,                  \
                             FetchAccount,                 \
                             FetchAccounts,                \
@@ -43,9 +45,10 @@ from sapysol.token import SapysolToken
 from sapysol.tokenMetadataMetaplex import *
 from sapysol.tokenMetadata2022     import *
 
-from sapysol.tx import SapysolTxParams, \
-                       SapysolTxStatus, \
-                       SapysolTx,       \
+from sapysol.tx import SapysolTxParams,     \
+                       SapysolTxStatus,     \
+                       SapysolTxImportMode, \
+                       SapysolTx,           \
                        WaitForBatchTx
 
 from sapysol.wallet import SapysolWalletReadonly, \

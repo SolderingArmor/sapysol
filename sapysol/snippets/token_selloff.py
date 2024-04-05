@@ -22,7 +22,7 @@ from   solana.rpc.api    import Client, Pubkey, Keypair
 from   solana.exceptions import SolanaRpcException
 from   typing            import List, Union
 from   queue             import Queue, Empty
-from ..helpers           import MakePubkey
+from ..helpers           import MakePubkey, SapysolPubkey
 from ..token             import SapysolToken
 from ..jupag             import SapysolJupagParams, SapysolJupag
 from ..tx                import SapysolTxParams, SapysolTxStatus, SapysolTx, WaitForBatchTx
@@ -35,8 +35,8 @@ class SapysolTokenSelloff:
     def __init__(self,
                  connection:         Client,
                  walletsList:        List[Keypair],
-                 tokenToSell:        Union[str, bytes, Pubkey],
-                 tokenToBuy:         Union[str, bytes, Pubkey],
+                 tokenToSell:        SapysolPubkey,
+                 tokenToBuy:         SapysolPubkey,
                  txParams:           SapysolTxParams          = SapysolTxParams(),
                  swapParams:         SapysolJupagParams       = SapysolJupagParams(),
                  connectionOverride: List[Union[str, Client]] = None,

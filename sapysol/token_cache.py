@@ -59,13 +59,13 @@ class TokenCache:
         return path
 
     @staticmethod
-    def __TokenFilename(tokenMint: Union[str, bytes, Pubkey]) -> str:
+    def __TokenFilename(tokenMint: SapysolPubkey) -> str:
         return os.path.join(TokenCache.__TokenCachePath(), f"{MakePubkey(tokenMint)}.json")
 
     # ========================================
     #
     @staticmethod
-    def __LoadFromFile(tokenMint: Union[str, bytes, Pubkey]) -> TokenCacheEntry:
+    def __LoadFromFile(tokenMint: SapysolPubkey) -> TokenCacheEntry:
         try:
             tokenCachePath: str = TokenCache.__TokenCachePath()
             tokenInfoFile:  str = TokenCache.__TokenFilename(tokenMint=tokenMint)
@@ -94,7 +94,7 @@ class TokenCache:
     # ========================================
     #
     @staticmethod
-    def __LoadFromBlockchain(connection: Client, tokenMint: Union[str, bytes, Pubkey]) -> TokenCacheEntry:
+    def __LoadFromBlockchain(connection: Client, tokenMint: SapysolPubkey) -> TokenCacheEntry:
         tokenCachePath: str = TokenCache.__TokenCachePath()
         tokenInfoFile:  str = TokenCache.__TokenFilename(tokenMint=tokenMint)
 
@@ -132,11 +132,11 @@ class TokenCache:
     # ========================================
     #
     @staticmethod
-    def UpdateTokenCache(connection: Client, tokenMint: Union[str, bytes, Pubkey]) -> TokenCacheEntry:
+    def UpdateTokenCache(connection: Client, tokenMint: SapysolPubkey) -> TokenCacheEntry:
         return TokenCache.__LoadFromBlockchain(connection=connection, tokenMint=tokenMint)
 
     @staticmethod
-    def GetToken(connection: Client, tokenMint: Union[str, bytes, Pubkey]) -> TokenCacheEntry:
+    def GetToken(connection: Client, tokenMint: SapysolPubkey) -> TokenCacheEntry:
         tokenInfo = TokenCache.__LoadFromFile(tokenMint=tokenMint)
         return tokenInfo if tokenInfo else TokenCache.__LoadFromBlockchain(connection=connection, tokenMint=tokenMint)
 

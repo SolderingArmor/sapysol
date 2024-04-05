@@ -26,7 +26,7 @@ from   spl.token.constants    import WRAPPED_SOL_MINT as NATIVE_MINT, TOKEN_PROG
 from   spl.token.instructions import get_associated_token_address, create_associated_token_account, close_account, sync_native, CloseAccountParams, SyncNativeParams
 import spl.token.instructions as     splToken
 from   typing                 import List, Any, TypedDict, Union, Optional, NamedTuple
-from  .helpers                import MakePubkey, MakeKeypair
+from  .helpers                import MakePubkey, MakeKeypair, SapysolPubkey
 from  .token_cache            import TokenCacheEntry, TokenCache
 
 # ===============================================================================
@@ -39,9 +39,9 @@ class AtaInstruction(NamedTuple):
     ix:     Instruction = None
 
 def GetOrCreateAtaIx(connection: Client,
-                     tokenMint:  Union[str, bytes, Pubkey],
-                     owner:      Union[str, bytes, Pubkey],
-                     payer:      Union[str, bytes, Pubkey] = None,
+                     tokenMint:  SapysolPubkey,
+                     owner:      SapysolPubkey,
+                     payer:      SapysolPubkey = None,
                      allowOwnerOffCurve: bool = True) -> AtaInstruction:
 
     _tokenMint = MakePubkey(tokenMint)
@@ -66,12 +66,12 @@ def GetOrCreateAtaIx(connection: Client,
 # If the same sender address is used, each next transfer takes 50 bytes per instruction.
 # But also may vary, because it depends.
 #
-def GetTransferTokenIxInternal(tokenProgramID: Union[str, bytes, Pubkey],
-                               tokenMint:      Union[str, bytes, Pubkey],
+def GetTransferTokenIxInternal(tokenProgramID: SapysolPubkey,
+                               tokenMint:      SapysolPubkey,
                                decimals:       int,
-                               senderWallet:   Union[str, bytes, Pubkey],
-                               senderAta:      Union[str, bytes, Pubkey],
-                               receiverAta:    Union[str, bytes, Pubkey],
+                               senderWallet:   SapysolPubkey,
+                               senderAta:      SapysolPubkey,
+                               receiverAta:    SapysolPubkey,
                                amountLamports: int) -> Instruction:
     return splToken.transfer_checked(
         splToken.TransferCheckedParams(
@@ -89,9 +89,9 @@ def GetTransferTokenIxInternal(tokenProgramID: Union[str, bytes, Pubkey],
 # ===============================================================================
 #
 def GetTransferTokenIx(connection:       Client,
-                       tokenMint:        Union[str, bytes, Pubkey],
-                       senderWallet:     Union[str, bytes, Pubkey],
-                       receiverWallet:   Union[str, bytes, Pubkey],
+                       tokenMint:        SapysolPubkey,
+                       senderWallet:     SapysolPubkey,
+                       receiverWallet:   SapysolPubkey,
                        amount:           int,
                        amountIsLamports: bool = True,
                        allowCreateAta:   bool = True) -> List[Instruction]:
@@ -118,8 +118,8 @@ def GetTransferTokenIx(connection:       Client,
 
 # ===============================================================================
 #
-def WrapSolInstructions(source:   Union[str, bytes, Pubkey], 
-                        dest:     Union[str, bytes, Pubkey], 
+def WrapSolInstructions(source:   SapysolPubkey,
+                        dest:     SapysolPubkey,
                         lamports: int) -> List[Instruction]:
 
     _source = MakePubkey(source) # preserve original `source`
@@ -135,7 +135,7 @@ def WrapSolInstructions(source:   Union[str, bytes, Pubkey],
 
 # ===============================================================================
 # 
-def UnwrapSolInstruction(owner: Union[str, bytes, Pubkey], 
+def UnwrapSolInstruction(owner:              SapysolPubkey,
                          allowOwnerOffCurve: bool = True) -> Instruction:
 
     _owner = MakePubkey(owner) # preserve original `owner`

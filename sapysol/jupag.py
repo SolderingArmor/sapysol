@@ -21,7 +21,7 @@
 from  .helpers        import *
 from  .token_cache    import TokenCacheEntry, TokenCache
 from   solana.rpc.api import Client, Pubkey, Keypair
-from   typing         import List, Any, TypedDict, Union, Optional, Literal
+from   typing         import List, Any, TypedDict, Union, dataclass, Literal
 import logging
 import requests
 
@@ -34,7 +34,6 @@ class SapysolJupagParams:
     slippageBps:             int  = 50 # 50 = 0.5%
     onlyDirectRoutes:        bool = False
     asLegacyTransaction:     bool = False
-
     # Tx
     quoteAutoMultiplier:     int  = 1
     quotePrioFeeLamports:    str  = "auto"
@@ -97,7 +96,7 @@ class SapysolJupag:
     # ========================================
     # 
     @staticmethod
-    def GetSwapTxBase64(walletAddress: Union[str, bytes, Pubkey],
+    def GetSwapTxBase64(walletAddress: SapysolPubkey,
                         coinQuote:     dict,
                         swapParams:    SapysolJupagParams = SapysolJupagParams()
                        ) -> str:

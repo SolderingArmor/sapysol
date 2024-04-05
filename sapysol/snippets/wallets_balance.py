@@ -21,7 +21,7 @@
 from   solana.rpc.api import Client, Pubkey, Keypair
 from   typing         import List, Union
 from   queue          import Queue, Empty
-from ..helpers        import MakePubkey
+from ..helpers        import MakePubkey, SapysolPubkey
 from ..token          import SapysolToken
 from  .batcher        import SapysolBatcher
 import time
@@ -32,10 +32,10 @@ import logging
 # 
 class SapysolWalletsBalance:
     def __init__(self,
-                 connection:        Client,
-                 pubkeysList:       List[Pubkey],
-                 tokenMint:         Union[str, bytes, Pubkey],
-                 numThreads:        int  = 50):
+                 connection:  Client,
+                 pubkeysList: List[Pubkey],
+                 tokenMint:   SapysolPubkey,
+                 numThreads:  int  = 50):
 
         assert(all(isinstance(n, Pubkey) for n in pubkeysList))
         self.CONNECTION:   Client         = connection

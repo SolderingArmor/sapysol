@@ -25,7 +25,7 @@ from   typing                 import List, Any, TypedDict, Union, Optional
 from   dataclasses            import dataclass, field
 from   datetime               import datetime
 from   enum                   import Enum
-from  .helpers                import MakePubkey, MakeKeypair, LAMPORTS_PER_SOL, ListToChunks
+from  .helpers                import MakePubkey, MakeKeypair, SapysolKeypair, LAMPORTS_PER_SOL, ListToChunks, SapysolPubkey
 from  .tx                     import SapysolTxParams, SapysolTxStatus, SapysolTx, WaitForBatchTx
 import base64
 import logging
@@ -36,7 +36,7 @@ import time
 class SapysolWalletReadonly:
     # ========================================
     #
-    def __init__(self, connection: Client, pubkey: Union[str, bytes, Pubkey]):
+    def __init__(self, connection: Client, pubkey: SapysolPubkey):
         self.CONNECTION: Client  = connection
         self.PUBKEY:     Pubkey  = MakePubkey(pubkey)
 
@@ -64,14 +64,14 @@ class SapysolWalletReadonly:
 # =============================================================================
 #
 class SapysolWallet(SapysolWalletReadonly):
-    def __init__(self, connection: Client, keypair: Union[str, Keypair]):
+    def __init__(self, connection: Client, keypair: SapysolKeypair):
         self.CONNECTION: Client  = connection
         self.KEYPAIR:    Keypair = MakeKeypair(keypair)
         self.PUBKEY:     Pubkey  = self.KEYPAIR.pubkey()
 
     # ========================================
     #
-    def SendLamportsBatch(self, destinationAddresses: List[str], lamports: int) -> List[SapysolTxStatus]:
+    def SendLamportsBatch(self, destinationAddresses: List[SapysolPubkey], lamports: int) -> List[SapysolTxStatus]:
         instructions = []
         txArray      = []
         for address in destinationAddresses:
@@ -91,12 +91,12 @@ class SapysolWallet(SapysolWalletReadonly):
 
     # ========================================
     #
-    def SendLamports(self, destinationAddress: str, lamports: int) -> SapysolTxStatus:
+    def SendLamports(self, destinationAddress: SapysolPubkey, lamports: int) -> SapysolTxStatus:
         return self.SendLamportsBatch(destinationAddresses=[destinationAddress], lamports=lamports)[0]
 
     # ========================================
     #
-    def SendLamportsAll(self, destinationAddress: str) -> SapysolTxStatus:
+    def SendLamportsAll(self, destinationAddress: SapysolPubkey) -> SapysolTxStatus:
         feeLamports:     int = 5000
         balanceLamports: int = self.GetBalanceLamports()
         if balanceLamports <= feeLamports:
@@ -106,10 +106,10 @@ class SapysolWallet(SapysolWalletReadonly):
 
     # ========================================
     #
-    def SendSolBatch(self, destinationAddresses: List[str], amountSol) -> List[SapysolTxStatus]:
+    def SendSolBatch(self, destinationAddresses: List[SapysolPubkey], amountSol: float) -> List[SapysolTxStatus]:
         return self.SendLamportsBatch(destinationAddresses=destinationAddresses, lamports=int(amountSol*LAMPORTS_PER_SOL))
 
-    def SendSol(self, destinationAddress, amountSol) -> SapysolTxStatus:
+    def SendSol(self, destinationAddress: SapysolPubkey, amountSol: float) -> SapysolTxStatus:
         return self.SendLamportsBatch(destinationAddresses=[destinationAddress], lamports=int(amountSol*LAMPORTS_PER_SOL))[0]
 
 # =============================================================================

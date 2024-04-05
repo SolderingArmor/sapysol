@@ -18,24 +18,12 @@
 #
 # =============================================================================
 # 
-from   solana.rpc.api                       import Client, Pubkey, Keypair, Commitment
-from   solana.rpc.commitment                import Commitment
-from   spl.token.client                     import Token
-from   spl.token.constants                  import ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID
-from   sapysol                              import *
-from   solders.account                      import Account, AccountJSON
-from   solders.transaction                  import VersionedTransaction, Signer
-from   solders.address_lookup_table_account import  AddressLookupTableAccount
-from   solders.transaction_status           import EncodedTransactionWithStatusMeta
-from   typing                               import List, Any, TypedDict, Union, Optional, TypeAlias
-from   solana.transaction                   import Transaction, Signature, Instruction
-from   solders.message                      import to_bytes_versioned, MessageV0
-from   solders.rpc.responses                import RpcBlockhash
-from   dataclasses                          import dataclass, field
-from   datetime                             import datetime
-from   enum                                 import Enum
-import json
+from   solana.rpc.api        import Client, Pubkey, Keypair, Commitment
+from   solana.rpc.commitment import Commitment
+from   solders.account       import Account, AccountJSON
+from   typing                import List, Any, Union
 import logging
+import json
 import os
 
 # ================================================================================
@@ -86,7 +74,7 @@ def GetModulePath(fileName = __file__) -> str:
 
 # ================================================================================
 # 
-def ListToChunks(baseList: List[Any], chunkSize: int):
+def ListToChunks(baseList: List[Any], chunkSize: int) -> List[List[Any]]:
     result = []
     chunks = baseList
     while chunks:
@@ -95,13 +83,18 @@ def ListToChunks(baseList: List[Any], chunkSize: int):
     return result
 
 # ================================================================================
-# Either Pubkey string or Pubkey
-def MakePubkey(pubkey: Union[str, bytes, Pubkey]) -> Pubkey:
+# Either Pubkey string or Pubkey or anything that can be a Pubkey
+#
+SapysolPubkey = Union[str, bytes, Keypair, Pubkey]
+#
+def MakePubkey(pubkey: SapysolPubkey) -> Pubkey:
     if pubkey is None:
         return None
 
     if isinstance(pubkey, Pubkey):
         return pubkey
+    if isinstance(pubkey, Keypair):
+        return pubkey.pubkey()
     elif isinstance(pubkey, bytes):
         return Pubkey.from_bytes(pubkey)
     elif isinstance(pubkey, str):
@@ -112,8 +105,11 @@ def MakePubkey(pubkey: Union[str, bytes, Pubkey]) -> Pubkey:
     return None
 
 # ================================================================================
-# Either Keypair JSON file path or Keypair
-def MakeKeypair(keypair: Union[str, bytes, Keypair]) -> Keypair:
+# Either Keypair JSON file path or Keypair or anything that can be a Keypair
+#
+SapysolKeypair = Union[str, bytes, Keypair]
+#
+def MakeKeypair(keypair: SapysolKeypair) -> Keypair:
     if keypair is None:
         return None
 
@@ -133,11 +129,11 @@ def MakeKeypair(keypair: Union[str, bytes, Keypair]) -> Keypair:
 # ================================================================================
 #
 def FetchAccounts(connection:    Client, 
-                  pubkeys:       List[Union[str, bytes, Pubkey]],
-                  chunkSize:     int = 100,
-                  requiredOwner: Union[str, bytes, Pubkey] = None,
-                  commitment:    Commitment = None,
-                  parseToJson:   bool = False) -> Union[List[Account], List[AccountJSON]]:
+                  pubkeys:       List[SapysolPubkey],
+                  chunkSize:     int           = 100,
+                  requiredOwner: SapysolPubkey = None,
+                  commitment:    Commitment    = None,
+                  parseToJson:   bool          = False) -> Union[List[Account], List[AccountJSON]]:
     results = []
     _pubkeys: List[Pubkey]       = [MakePubkey(pk) for pk in pubkeys]
     chunks:   List[List[Pubkey]] = ListToChunks(baseList=_pubkeys, chunkSize=chunkSize)
@@ -152,10 +148,10 @@ def FetchAccounts(connection:    Client,
 # ================================================================================
 #
 def FetchAccount(connection:    Client, 
-                 pubkey:        Union[str, bytes, Pubkey],
-                 requiredOwner: Union[str, bytes, Pubkey] = None,
-                 commitment:    Commitment = None,
-                 parseToJson:   bool = False) -> Union[Account, AccountJSON]:
+                 pubkey:        SapysolPubkey,
+                 requiredOwner: SapysolPubkey = None,
+                 commitment:    Commitment    = None,
+                 parseToJson:   bool          = False) -> Union[Account, AccountJSON]:
     return FetchAccounts(connection    = connection,
                          pubkeys       = [pubkey],
                          requiredOwner = requiredOwner,
