@@ -44,6 +44,7 @@ LAMPORTS_PER_SOL:      int    = 1_000_000_000
 METADATA_PROGRAM_ID:   Pubkey = Pubkey.from_string("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s" )
 SYSTEM_PROGRAM_ID:     Pubkey = Pubkey.from_string("11111111111111111111111111111111"            )
 SYSVAR_RENT_PUBKEY:    Pubkey = Pubkey.from_string("SysvarRent111111111111111111111111111111111" )
+SYSVAR_CLOCK_PUBKEY:   Pubkey = Pubkey.from_string("SysvarC1ock11111111111111111111111111111111")
 TOKEN_2022_PROGRAM_ID: Pubkey = Pubkey.from_string("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb" )
 # Address of the special mint for wrapped native SOL in spl-token-2022 */
 NATIVE_MINT_2022:      Pubkey = Pubkey.from_string("9pan9bMn5HatX4EJdBwg9VgCa7Uz5HL8N1m5D3NdXejP")
