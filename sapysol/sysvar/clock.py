@@ -15,6 +15,7 @@
 # (c) SuperArmor
 #
 # module: SysvarClock
+# https://docs.solanalabs.com/runtime/sysvars
 #
 # =============================================================================
 # 
