@@ -98,7 +98,7 @@ class SapysolBatcher:
                         case "ignore":
                             pass
                         case "print":
-                            logging.error(f"SapysolTokenSelloff::SellSingle(), RPC error:\n{e}")
+                            logging.error(f"SapysolBatcher::__ProcessSingle(), RPC error:\n{e}")
                         case "raise":
                             raise
                 except Exception as e:
@@ -106,7 +106,7 @@ class SapysolBatcher:
                         case "ignore":
                             pass
                         case "print":
-                            logging.error(f"SapysolTokenSelloff::SellSingle(), Error:\n{e}")
+                            logging.error(f"SapysolBatcher::__ProcessSingle(), Error:\n{e}")
                         case "raise":
                             raise
 
