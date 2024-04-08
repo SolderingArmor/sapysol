@@ -143,6 +143,20 @@ def MakeKeypair(keypair: SapysolKeypair) -> Keypair:
 
 # ================================================================================
 #
+def GetFilesFromPath(path: str, endsWith: str=".json") -> List[str]:
+    files = os.listdir(path)
+    return [os.path.join(dir, f) for f in files if os.path.isfile(os.path.join(dir, f)) and f.lower().endswith(endsWith)]
+
+def GetKeypairsFromPath(path: str, endsWith: str=".json") -> List[Keypair]:
+    files    = GetFilesFromPath(path=path, endsWith=endsWith)
+    keypairs = [MakeKeypair(f) for f in files]
+    return keypairs
+
+def GetPubkeysFromKeypairs(keypairList: List[SapysolKeypair]) -> List[Pubkey]:
+    return [ MakeKeypair(x).pubkey() for x in keypairList ]
+
+# ================================================================================
+#
 def FetchAccounts(connection:    Client, 
                   pubkeys:       List[SapysolPubkey],
                   chunkSize:     int           = 100,
