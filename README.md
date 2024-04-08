@@ -42,7 +42,7 @@ TODO
 # Contributing
 
 All contributions are welcome! Although the devil is in the details:
-* One of the main requirements is to [b]keep the same coding style[/b] for all future changes.
+* One of the main requirements is to **keep the same coding style** for all future changes.
 * `sapysol` is designed as a wrapper, one layer above `solders`/`solana-py`, don't expect it to do very narrow or specific tasks. If you need custom behavior in your case just go one level down and implement that using `solders`/`solana-py` in your local scripts.
 
 # Tests
