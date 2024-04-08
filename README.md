@@ -25,6 +25,7 @@ Note: Requires Python >= 3.11.
 Please use `threading` if you need parallel execution.
 
 ```py
+# ========================================
 # Sending SOL to another wallet
 from solana.rpc.api import Client 
 from sapysol        import *
@@ -34,8 +35,8 @@ wallet:     SapysolWallet   = SapysolWallet(connection=connection, keypair="path
 result:     SapysolTxStatus = wallet.SendSol(destinationAddress="11111111111111111111111111111111", amountSol=0.5)
 assert(result==SapysolTxStatus.SUCCESS)
 
+# ========================================
 # Jupiter swap
-
 from solana.rpc.api import Client
 from sapysol        import *
 from sapysol.jupag  import SapysolJupag
@@ -51,6 +52,7 @@ tx.FromBase64(txB64)
 result: SapysolTxStatus = tx.SendAndWait()
 assert(result==SapysolTxStatus.SUCCESS)
 
+# ========================================
 # TODO - other simple use cases
 ```
 
