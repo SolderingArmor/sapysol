@@ -25,6 +25,8 @@ from   solana.rpc.api        import Client
 from   solana.rpc.commitment import Commitment
 import borsh_construct       as borsh
 from ..helpers               import SYSVAR_CLOCK_PUBKEY, FetchAccount
+#from   solders.clock  import Clock as SysvarClock
+#from   solders.sysvar import CLOCK as SYSVAR_CLOCK_PUBKEY
 
 # =============================================================================
 # 

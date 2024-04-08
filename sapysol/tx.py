@@ -145,22 +145,25 @@ class SapysolTx:
 
     # ========================================
     # 
-    def Sign(self, signers: List[SapysolKeypair] = None) -> "SapysolTx":
-        if signers:
-            self.SIGNERS = [MakeKeypair(signer) for signer in signers]
+    def Sign(self, signersOverride: List[SapysolKeypair] = None) -> "SapysolTx":
+        signers = self.SIGNERS if signersOverride is None else [MakeKeypair(signer) for signer in signersOverride]
+        if signers is None:
+            signers = [self.PAYER]
+        if signers is None:
+            raise(Exception(f"SapysolTx::Sign(): no signers specified!"))
+
         if isinstance(self.RAW_TX, VersionedTransaction):
-            self.RAW_TX = VersionedTransaction(message  = self.RAW_TX.message, 
-                                               keypairs = self.SIGNERS if self.SIGNERS else [self.PAYER])
+            self.RAW_TX = VersionedTransaction(message  = self.RAW_TX.message,
+                                               keypairs = signers)
         elif isinstance(self.RAW_TX, Transaction):
-            self.RAW_TX.fee_payer = self.SIGNERS[0].pubkey() if (self.SIGNERS and isinstance(self.SIGNERS, list) and len(self.SIGNERS) > 0) \
-                               else self.PAYER.pubkey()
-            self.RAW_TX.sign(*self.SIGNERS if self.SIGNERS else [self.PAYER])
+            self.RAW_TX.fee_payer = signers[0].pubkey()
+            self.RAW_TX.sign(*signers)
 
         return self
 
     # ========================================
     #
-    def __SendInternal(self, connection: Client) -> "SapysolTx":
+    def __SendInternal(self, connection: Client, txParams: SapysolTxParams) -> "SapysolTx":
         if self.CONFIRMED_RESULT != SapysolTxStatus.PENDING:
             return self
 
@@ -168,10 +171,10 @@ class SapysolTx:
             self.SENT_DT = datetime.now()
 
         if self.LAST_VALID_BLOCKHEIGHT is None:
-            latestBlockHash = (connection.get_latest_blockhash(commitment=self.TX_PARAMS.blockhashCommitment)).value
+            latestBlockHash = (connection.get_latest_blockhash(commitment=txParams.blockhashCommitment)).value
             self.LAST_VALID_BLOCKHEIGHT: int = latestBlockHash.last_valid_block_height
 
-        if self.TX_PARAMS.maxSecondsPerTx is not None and (datetime.now() - self.SENT_DT).seconds >= self.TX_PARAMS.maxSecondsPerTx:
+        if txParams.maxSecondsPerTx is not None and (datetime.now() - self.SENT_DT).seconds >= txParams.maxSecondsPerTx:
             self.CONFIRMED_RESULT = SapysolTxStatus.TIMEOUT
             logging.info(f"{self.CONFIRMED_RESULT.name}: https://solscan.io/tx/{self.TXID}")
             return self
@@ -180,9 +183,9 @@ class SapysolTx:
         if blockheight < self.LAST_VALID_BLOCKHEIGHT:
             logging.debug(f"SapysolTx::Send() blockheight={blockheight}; lastValidBlockHeight={self.LAST_VALID_BLOCKHEIGHT}; {self.LAST_VALID_BLOCKHEIGHT-blockheight}")
 
-            txOpts: TxOpts = TxOpts(skip_confirmation = self.TX_PARAMS.skipConfirmation, 
-                                    skip_preflight    = self.TX_PARAMS.skipPreFlight, 
-                                    max_retries       = self.TX_PARAMS.maxRetries)
+            txOpts: TxOpts = TxOpts(skip_confirmation = txParams.skipConfirmation, 
+                                    skip_preflight    = txParams.skipPreFlight, 
+                                    max_retries       = txParams.maxRetries)
             self.TXID: Signature = (connection.send_raw_transaction(txn=self.Decode(), opts=txOpts)).value
 
         return self
@@ -191,34 +194,38 @@ class SapysolTx:
     # Can send to one or many endpoints at the same time.
     # TODO: add description
     #
-    def Send(self, connectionOverride: Union[str, Client, List[Client]] = None) -> "SapysolTx":
+    def Send(self,
+             connectionOverride: Union[str, Client, List[Client]] = None,
+             txParamsOverride:   SapysolTxParams = None) -> "SapysolTx":
+
         useDefaultConnection:   bool = connectionOverride is None
         useSingleOverride:      bool = isinstance(connectionOverride, Client)
         useSingleOverrideStr:   bool = isinstance(connectionOverride, str)
         useMultipleOverride:    bool = isinstance(connectionOverride, list) and all(isinstance(n, Client) for n in connectionOverride)
         useMultipleOverrideStr: bool = isinstance(connectionOverride, list) and all(isinstance(n, str)    for n in connectionOverride)
+        txParams: SapysolTxParams    = txParamsOverride if txParamsOverride else self.TX_PARAMS
 
         # None is given
         if useDefaultConnection:
-            self.__SendInternal(connection=self.CONNECTION)
+            self.__SendInternal(connection=self.CONNECTION, txParams=txParams)
 
         # `Client` is given
         elif useSingleOverride:
-            self.__SendInternal(connection=connectionOverride)
+            self.__SendInternal(connection=connectionOverride, txParams=txParams)
 
         # connection string is given
         elif useSingleOverrideStr:
-            self.__SendInternal(connection=Client(connectionOverride))
+            self.__SendInternal(connection=Client(connectionOverride), txParams=txParams)
 
         # multiple `Client`s are given
         elif useMultipleOverride:
             for connection in connectionOverride:
-                self.__SendInternal(connection=connection)
+                self.__SendInternal(connection=connection, txParams=txParams)
 
         # multiple connection strings are given
         elif useMultipleOverrideStr:
             for connection in connectionOverride:
-                self.__SendInternal(Client(connection))
+                self.__SendInternal(Client(connection), txParams=txParams)
 
         # ?????
         else:
@@ -265,7 +272,7 @@ class SapysolTx:
     # ========================================
     # TODO: for connection list send all transactions threaded
     #
-    def WaitForTx(self, connectionOverride: Union[Client, List[Client]] = None) -> SapysolTxStatus:
+    def SendAndWait(self, connectionOverride: Union[Client, List[Client]] = None) -> SapysolTxStatus:
         while True:
             r: SapysolTxStatus = (self.Send(connectionOverride=connectionOverride)).Confirm()
             if r != SapysolTxStatus.PENDING:
@@ -276,8 +283,8 @@ class SapysolTx:
 
 # ================================================================================
 # TODO: return not only result but full tx info
-def WaitForBatchTx(txArray:  List[SapysolTx],
-                   txParams: SapysolTxParams = SapysolTxParams()) -> List[SapysolTxStatus]:
+def SendAndWaitBatchTx(txArray:  List[SapysolTx],
+                       txParams: SapysolTxParams = SapysolTxParams()) -> List[SapysolTxStatus]:
     while True:
         txNum = 0
         results: List[SapysolTxStatus] = []

@@ -21,7 +21,8 @@
 from  .helpers        import *
 from  .token_cache    import TokenCacheEntry, TokenCache
 from   solana.rpc.api import Client, Pubkey, Keypair
-from   typing         import List, Any, TypedDict, Union, dataclass, Literal
+from   typing         import List, Any, TypedDict, Union, Literal
+from   dataclasses    import dataclass
 import logging
 import requests
 

@@ -26,7 +26,7 @@ from   dataclasses            import dataclass, field
 from   datetime               import datetime
 from   enum                   import Enum
 from  .helpers                import MakePubkey, MakeKeypair, SapysolKeypair, LAMPORTS_PER_SOL, ListToChunks, SapysolPubkey
-from  .tx                     import SapysolTxParams, SapysolTxStatus, SapysolTx, WaitForBatchTx
+from  .tx                     import SapysolTxParams, SapysolTxStatus, SapysolTx, SendAndWaitBatchTx
 import base64
 import logging
 import time
@@ -87,7 +87,7 @@ class SapysolWallet(SapysolWalletReadonly):
             tx.FromInstructionsLegacy(chunk)
             tx.Sign()
             txArray.append(tx)
-        return WaitForBatchTx(txArray=txArray)
+        return SendAndWaitBatchTx(txArray=txArray)
 
     # ========================================
     #

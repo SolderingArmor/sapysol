@@ -25,7 +25,7 @@ from   queue             import Queue, Empty
 from ..helpers           import MakePubkey, SapysolPubkey
 from ..token             import SapysolToken
 from ..jupag             import SapysolJupagParams, SapysolJupag
-from ..tx                import SapysolTxParams, SapysolTxStatus, SapysolTx, WaitForBatchTx
+from ..tx                import SapysolTxParams, SapysolTxStatus, SapysolTx, SendAndWaitBatchTx
 from  .batcher           import SapysolBatcher
 import logging
 
@@ -74,7 +74,7 @@ class SapysolTokenSelloff:
             txb64         = SapysolJupag.GetSwapTxBase64(walletAddress=wallet.pubkey(), coinQuote=quote, swapParams=self.SWAP_PARAMS)
             tx: SapysolTx = SapysolTx(connection=self.CONNECTION, payer=wallet, txParams=self.TX_PARAMS)
             tx.FromBase64(b64=txb64)
-            result: SapysolTxStatus = tx.Sign([wallet]).WaitForTx(self.CONNECTION_OVERRIDE)
+            result: SapysolTxStatus = tx.Sign([wallet]).SendAndWait(self.CONNECTION_OVERRIDE)
             if result == SapysolTxStatus.SUCCESS:
                 break
 

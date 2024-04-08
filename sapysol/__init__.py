@@ -32,6 +32,7 @@ from sapysol.helpers import EnsurePathExists,             \
                             DivmodJsBignumber
 
 from sapysol.ix import AtaInstruction,               \
+                       GetAta,                       \
                        GetOrCreateAtaIx,             \
                        GetTransferTokenIxInternal,   \
                        GetTransferTokenIx,           \
@@ -49,7 +50,7 @@ from sapysol.tx import SapysolTxParams,     \
                        SapysolTxStatus,     \
                        SapysolTxImportMode, \
                        SapysolTx,           \
-                       WaitForBatchTx
+                       SendAndWaitBatchTx
 
 from sapysol.wallet import SapysolWalletReadonly, \
                            SapysolWallet

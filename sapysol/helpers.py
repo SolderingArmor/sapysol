@@ -22,20 +22,22 @@ from   solana.rpc.api        import Client, Pubkey, Keypair, Commitment
 from   solana.rpc.commitment import Commitment
 from   solders.account       import Account, AccountJSON
 from   typing                import List, Any, Union
+from   pybip39               import Mnemonic, Seed
 import logging
 import json
 import os
 
 # ================================================================================
 #
-LAMPORTS_PER_SOL:      int    = 1_000_000_000
-METADATA_PROGRAM_ID:   Pubkey = Pubkey.from_string("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s" )
-SYSTEM_PROGRAM_ID:     Pubkey = Pubkey.from_string("11111111111111111111111111111111"            )
-SYSVAR_RENT_PUBKEY:    Pubkey = Pubkey.from_string("SysvarRent111111111111111111111111111111111" )
-SYSVAR_CLOCK_PUBKEY:   Pubkey = Pubkey.from_string("SysvarC1ock11111111111111111111111111111111")
-TOKEN_2022_PROGRAM_ID: Pubkey = Pubkey.from_string("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb" )
+LAMPORTS_PER_SOL:          int    = 1_000_000_000
+METADATA_PROGRAM_ID:       Pubkey = Pubkey.from_string("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s" )
+SYSTEM_PROGRAM_ID:         Pubkey = Pubkey.from_string("11111111111111111111111111111111"            )
+SYSVAR_RENT_PUBKEY:        Pubkey = Pubkey.from_string("SysvarRent111111111111111111111111111111111" )
+SYSVAR_CLOCK_PUBKEY:       Pubkey = Pubkey.from_string("SysvarC1ock11111111111111111111111111111111" )
+SYSVAR_SLOT_HASHES_PUBKEY: Pubkey = Pubkey.from_string("SysvarS1otHashes111111111111111111111111111" )
+TOKEN_2022_PROGRAM_ID:     Pubkey = Pubkey.from_string("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb" )
 # Address of the special mint for wrapped native SOL in spl-token-2022 */
-NATIVE_MINT_2022:      Pubkey = Pubkey.from_string("9pan9bMn5HatX4EJdBwg9VgCa7Uz5HL8N1m5D3NdXejP")
+NATIVE_MINT_2022:          Pubkey = Pubkey.from_string("9pan9bMn5HatX4EJdBwg9VgCa7Uz5HL8N1m5D3NdXejP")
 
 # ================================================================================
 # Create path if it doesn't exist
@@ -118,12 +120,25 @@ def MakeKeypair(keypair: SapysolKeypair) -> Keypair:
     elif isinstance(keypair, bytes):
         return Keypair.from_bytes(keypair)
     elif isinstance(keypair, str):
-        try: 
-            return Keypair.from_json(keypair)
-        except:
+        # First try to load file
+        try:
             with open(keypair) as f:
                 result = json.loads(f.read())
                 return Keypair.from_bytes(result)
+        except:
+            pass
+        # Second - maybe it is a mnemonic?
+        try:
+            mnemonic = Mnemonic.from_phrase(keypair)
+            seed     = Seed(mnemonic=mnemonic, password="")
+            return Keypair.from_seed_and_derivation_path(seed=bytes(seed), dpath="m/44'/501'/0'/0'")
+        except:
+            pass
+        # Third - maybe it is already a json?
+        try: 
+            return Keypair.from_json(keypair)
+        except:
+            pass
     return None
 
 # ================================================================================

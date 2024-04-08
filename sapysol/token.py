@@ -106,7 +106,7 @@ class SapysolToken:
             tx: SapysolTx = SapysolTx(connection=self.CONNECTION, payer=payer)
             tx.FromInstructionsLegacy(instructions=chunk)
             tx.Sign()
-        WaitForBatchTx(txArray=txArray)
+        SendAndWaitBatchTx(txArray=txArray)
         return resultPubkeys
     
     # ========================================
@@ -119,7 +119,7 @@ class SapysolToken:
             return ataIx.pubkey
         tx: SapysolTx = SapysolTx(connection=self.CONNECTION, payer=payer)
         tx.FromInstructionsLegacy(instructions=ataIx.ix)
-        tx.Sign().WaitForTx()
+        tx.Sign().SendAndWait()
         return ataIx.pubkey
 
     # ========================================

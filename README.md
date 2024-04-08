@@ -1,14 +1,12 @@
 # sapysol
 
-`sapysol` is a Solana Python wrapper. It doesn't reinvent what [solana-py](https://github.com/michaelhly/solana-py), [solders](https://github.com/kevinheavey/solders) or [AnchorPy](https://github.com/kevinheavey/anchorpy) do, but rather uses their power to create easy-to-use Python classes and wrappers to create short and fast Python scripts to interact with Solana blockchain.
+`sapysol` is a Solana Python wrapper. It doesn't reinvent what [solana-py](https://github.com/michaelhly/solana-py), [solders](https://github.com/kevinheavey/solders) or [AnchorPy](https://github.com/kevinheavey/anchorpy) do, but rather uses their power to create easy-to-use Python classes and wrappers to rapidly develop short and fast Python scripts to interact with Solana blockchain.
 
-Along with `@solana/web3.js` that helps developers write JS code, `sapysol` will expose blockchain technologies to more developers that prefer using Python.
+Like `@solana/web3.js` helps developers write JS code, `sapysol` will ease using blockchain technologies to more developers that prefer Python instead. More developers on board - better for the community and Solana.
 
-Main goal of `sapysol` is an ease of Python developers onboarding to Solana.
+`sapysol` can also serve as a base layer for other wrappers because it simplifies `Pubkey`/`Keypair` management, creating and sending transactions, tokens, instructions etc.
 
-`sapysol` can also serve as a base layer for other wrappers because it simplifies `Pubkey`/`Keypair` management, creating and sending transactions, token instructions etc.
-
-WARNING! `sapysol` is currently in `alpha` mode, so, bugs, lack of tests and descriptions are expected.
+WARNING! `sapysol` is currently in `alpha` version, so, bugs, lack of tests and descriptions are expected. Some things may not work, future versions may bring breaking changes. It is a hard path for Python in Solana and I hope we hat a lot of friends along the way.
 
 # Installation
 
@@ -21,15 +19,22 @@ Note: Requires Python >= 3.11.
 # Usage
 
 `sapysol` uses `Client` instead of `AsyncClient` for few reasons:
-* First - without `async` you can put more logic to Python constructors and simplify class creation;
+* First - without `async` you can put more logic to Python constructors and other non-async functions;
 * Second - what is the point of `async` if you really use `await` in 100% of cases?
 
 Please use `threading` if you need parallel execution.
 
 ```py
-from sapysol import *
+# Sending SOL to another wallet
+from solana.rpc.api import Client 
+from sapysol        import *
 
-# TODO
+connection: Client          = Client("https://api.mainnet-beta.solana.com")
+wallet:     SapysolWallet   = SapysolWallet(connection=connection, keypair="path/to/file.json")
+result:     SapysolTxStatus = wallet.SendSol(destinationAddress="11111111111111111111111111111111", amountSol=0.5)
+assert(result==SapysolTxStatus.SUCCESS)
+
+# TODO - other simple use cases
 ```
 
 TODO
@@ -46,7 +51,7 @@ TODO
 
 # Contact
 
-[Telegram](https://t.me/SuperArmor)
+[Telegram](https://t.me/sapysol)
 
 Donations: `SAxxD7JGPQWqDihYDfD6mFp7JWz5xGrf9RXmE4BJWTS`
 

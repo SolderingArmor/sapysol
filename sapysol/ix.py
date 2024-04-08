@@ -38,6 +38,9 @@ class AtaInstruction(NamedTuple):
     pubkey: Pubkey
     ix:     Instruction = None
 
+def GetAta(tokenMint: SapysolPubkey, owner: SapysolPubkey) -> Pubkey:
+    return get_associated_token_address(owner=MakePubkey(owner), mint=MakePubkey(tokenMint))
+
 def GetOrCreateAtaIx(connection: Client,
                      tokenMint:  SapysolPubkey,
                      owner:      SapysolPubkey,
@@ -54,7 +57,7 @@ def GetOrCreateAtaIx(connection: Client,
 
     if _payer is None:
         _payer = _owner
-    ataAddress = get_associated_token_address(owner=_owner, mint=_tokenMint)
+    ataAddress = GetAta(owner=owner, tokenMint=tokenMint)
     account    = connection.get_account_info(ataAddress)
     if account.value is None:
         _ix = create_associated_token_account(payer=_payer, owner=_owner, mint=_tokenMint)
