@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "sapysol"
-version = "0.4.0"
+version = "0.4.1"
 description = "SuperArmor's Solana Python wrapper."
 authors = ["Anton Platonov <anton@platonov.io>"]
 license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 requests = "^2.31.0"
 pytest = "^8.1.1"
 base58 = "^2.1.1"
