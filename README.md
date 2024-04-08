@@ -34,6 +34,23 @@ wallet:     SapysolWallet   = SapysolWallet(connection=connection, keypair="path
 result:     SapysolTxStatus = wallet.SendSol(destinationAddress="11111111111111111111111111111111", amountSol=0.5)
 assert(result==SapysolTxStatus.SUCCESS)
 
+# Jupiter swap
+
+from solana.rpc.api import Client
+from sapysol        import *
+from sapysol.jupag  import SapysolJupag
+
+connection: Client = Client("https://api.mainnet-beta.solana.com")
+quote = SapysolJupag.GetSwapQuote(connection    = connection,
+                                  tokenFrom     = "So11111111111111111111111111111111111111112",
+                                  tokenTo       = "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263", # BONK
+                                  inAmount      = 1 * LAMPORTS_PER_SOL)
+txB64 = SapysolJupag.GetSwapTxBase64(walletAddress=wallet.KEYPAIR.pubkey(), coinQuote=quote)
+tx: SapysolTx = SapysolTx(connection=connection, payer=wallet.KEYPAIR)
+tx.FromBase64(txB64)
+result: SapysolTxStatus = tx.SendAndWait()
+assert(result==SapysolTxStatus.SUCCESS)
+
 # TODO - other simple use cases
 ```
 
