@@ -41,27 +41,22 @@ class AtaInstruction(NamedTuple):
 def GetAta(tokenMint: SapysolPubkey, owner: SapysolPubkey) -> Pubkey:
     return get_associated_token_address(owner=MakePubkey(owner), mint=MakePubkey(tokenMint))
 
+def CreateAtaIx(tokenMint: SapysolPubkey, owner: SapysolPubkey, payer: SapysolPubkey) -> Pubkey:
+    return create_associated_token_account(payer=MakePubkey(payer), owner=MakePubkey(owner), mint=MakePubkey(tokenMint))
+
 def GetOrCreateAtaIx(connection: Client,
                      tokenMint:  SapysolPubkey,
                      owner:      SapysolPubkey,
                      payer:      SapysolPubkey = None,
                      allowOwnerOffCurve: bool = True) -> AtaInstruction:
 
-    _tokenMint = MakePubkey(tokenMint)
-    _owner     = MakePubkey(owner)
-    _payer     = MakePubkey(payer)
-    _ix        = None
-
     if allowOwnerOffCurve == False and not owner.is_on_curve():
         raise("GetOrCreateATAInstruction(): allowOwnerOffCurve = False, but `owner` is off curve address!")
 
-    if _payer is None:
-        _payer = _owner
     ataAddress = GetAta(owner=owner, tokenMint=tokenMint)
     account    = connection.get_account_info(ataAddress)
-    if account.value is None:
-        _ix = create_associated_token_account(payer=_payer, owner=_owner, mint=_tokenMint)
-    return AtaInstruction(pubkey=ataAddress, ix=_ix)
+    return AtaInstruction(pubkey = ataAddress,
+                          ix     = None if account.value is not None else CreateAtaIx(payer=payer if payer else owner, owner=owner, tokenMint=tokenMint))
 
 # ===============================================================================
 # `transfer` is deprecated, using `transfer_checked`.
@@ -121,37 +116,36 @@ def GetTransferTokenIx(connection:       Client,
 
 # ===============================================================================
 #
-def WrapSolInstructions(source:   SapysolPubkey,
-                        dest:     SapysolPubkey,
-                        lamports: int) -> List[Instruction]:
+def WrapSolInstructions(connection: Client,
+                        lamports:   int,
+                        owner:      SapysolPubkey,
+                        payer:      SapysolPubkey = None) -> List[Instruction]:
 
-    _source = MakePubkey(source) # preserve original `source`
-    _dest   = MakePubkey(dest)   # preserve original `dest`
-    return [
-        transfer({
-            "from_pubkey": _source,
-            "to_pubkey":   _dest,
-            "lamports":    lamports
-        }),
-        sync_native(SyncNativeParams(program_id=TOKEN_PROGRAM_ID, account=_dest))
-    ]
+    wsolAta = GetOrCreateAtaIx(connection=connection, tokenMint=NATIVE_MINT, owner=owner, payer=payer)
+    ixList: List[Instruction] = []
+    if wsolAta.ix:
+        ixList.append(wsolAta.ix)
+    ixList.append(transfer({
+        "from_pubkey": MakePubkey(owner),
+        "to_pubkey":   wsolAta.pubkey,
+        "lamports":    lamports
+    }))
+    ixList.append(sync_native(SyncNativeParams(program_id=TOKEN_PROGRAM_ID, account=wsolAta.pubkey)))
+    return ixList
 
 # ===============================================================================
 # 
 def UnwrapSolInstruction(owner:              SapysolPubkey,
                          allowOwnerOffCurve: bool = True) -> Instruction:
 
-    _owner = MakePubkey(owner) # preserve original `owner`
-    if allowOwnerOffCurve == False and not _owner.is_on_curve():
+    if allowOwnerOffCurve == False and not MakePubkey(owner).is_on_curve():
         raise("UnwrapSolInstruction(): allowOwnerOffCurve = False, but `owner` is off curve address!")
 
-    WSolAtaAccount = get_associated_token_address(owner=_owner, mint=NATIVE_MINT)
-    if WSolAtaAccount:
-        return close_account(params=CloseAccountParams(program_id = TOKEN_PROGRAM_ID,
-                                                       account    = WSolAtaAccount,
-                                                       dest       = _owner,
-                                                       owner      = _owner))
-    return None
+    wsolAta = GetAta(tokenMint=NATIVE_MINT, owner=owner)
+    return close_account(params=CloseAccountParams(program_id = TOKEN_PROGRAM_ID,
+                                                   account    = wsolAta,
+                                                   dest       = MakePubkey(owner),
+                                                   owner      = MakePubkey(owner)))
 
 # ===============================================================================
 #

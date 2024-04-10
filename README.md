@@ -14,7 +14,7 @@ WARNING! `sapysol` is currently in `alpha` version, so, bugs, lack of tests and 
 pip install sapysol
 ```
 
-Note: Requires Python >= 3.11.
+Note: Requires Python >= 3.10.
 
 # Usage
 

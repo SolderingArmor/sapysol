@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sapysol"
-version = "0.4.1"
+version = "0.5.0"
 description = "SuperArmor's Solana Python wrapper."
 authors = ["Anton Platonov <anton@platonov.io>"]
 license = "MIT"

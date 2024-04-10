@@ -36,6 +36,7 @@ from sapysol.helpers import EnsurePathExists,       \
 
 from sapysol.ix import AtaInstruction,              \
                        GetAta,                      \
+                       CreateAtaIx,                 \
                        GetOrCreateAtaIx,            \
                        GetTransferTokenIxInternal,  \
                        GetTransferTokenIx,          \
