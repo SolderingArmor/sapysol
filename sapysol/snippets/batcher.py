@@ -26,6 +26,8 @@ import copy
 import time
 import logging
 
+logger = logging.getLogger("sapysol")
+
 # =============================================================================
 # 
 SAPYSOL_ERROR_ACTION = Literal["ignore", "print", "raise"]
@@ -98,7 +100,7 @@ class SapysolBatcher:
                         case "ignore":
                             pass
                         case "print":
-                            logging.error(f"SapysolBatcher::__ProcessSingle(), RPC error:\n{e}")
+                            logger.error(f"SapysolBatcher::__ProcessSingle(), RPC error:\n{e}")
                         case "raise":
                             raise
                 except Exception as e:
@@ -106,7 +108,7 @@ class SapysolBatcher:
                         case "ignore":
                             pass
                         case "print":
-                            logging.error(f"SapysolBatcher::__ProcessSingle(), Error:\n{e}")
+                            logger.error(f"SapysolBatcher::__ProcessSingle(), Error:\n{e}")
                         case "raise":
                             raise
 

@@ -28,6 +28,8 @@ import time
 import threading
 import logging
 
+logger = logging.getLogger("sapysol")
+
 # =============================================================================
 # 
 class SapysolWalletsBalance:
@@ -76,9 +78,9 @@ class SapysolWalletsBalance:
 
         delimiter = 10**self.TOKEN.TOKEN_INFO.decimals
         # HEADER
-        logging.info((2+44+3+32+2)*"-")
-        logging.info(f"| {'WALLET':<44} | {'BALANCE':<32} |")
-        logging.info((2+44+3+32+2)*"-")
+        logger.info((2+44+3+32+2)*"-")
+        logger.info(f"| {'WALLET':<44} | {'BALANCE':<32} |")
+        logger.info((2+44+3+32+2)*"-")
 
         sum:          int = 0
         walletsFull:  int = 0
@@ -92,21 +94,21 @@ class SapysolWalletsBalance:
 
             if balanceInLamports:
                 if not ignoreEmpty or balance > 0:
-                    logging.info(f"| {str(wallet):>44} | {balance:<32} |")
+                    logger.info(f"| {str(wallet):>44} | {balance:<32} |")
             else:
                 if not ignoreEmpty or balance > 0:
-                    logging.info(f"| {str(wallet):>44} | {balance/delimiter:<32} |")
+                    logger.info(f"| {str(wallet):>44} | {balance/delimiter:<32} |")
 
         # FOOTER
         delimiter: int = 10**self.TOKEN.TOKEN_INFO.decimals
-        logging.info((2+44+3+32+2)*"-")
+        logger.info((2+44+3+32+2)*"-")
 
-        logging.info(f"Wallets with balance: {walletsFull}" )
-        logging.info(f"Wallets empty:        {walletsEmpty}")
+        logger.info(f"Wallets with balance: {walletsFull}" )
+        logger.info(f"Wallets empty:        {walletsEmpty}")
         if balanceInLamports:
-            logging.info(f"TOKENS TOTAL (lamports): {sum}\n")
+            logger.info(f"TOKENS TOTAL (lamports): {sum}\n")
         else:
-            logging.info(f"TOKENS TOTAL: {sum/delimiter}\n")
+            logger.info(f"TOKENS TOTAL: {sum/delimiter}\n")
 
 # =============================================================================
 # 

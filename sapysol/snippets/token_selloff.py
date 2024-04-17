@@ -29,6 +29,8 @@ from ..tx                import SapysolTxParams, SapysolTxStatus, SapysolTx, Sen
 from  .batcher           import SapysolBatcher
 import logging
 
+logger = logging.getLogger("sapysol")
+
 # =============================================================================
 # 
 class SapysolTokenSelloff:
@@ -37,6 +39,7 @@ class SapysolTokenSelloff:
                  walletsList:        List[Keypair],
                  tokenToSell:        SapysolPubkey,
                  tokenToBuy:         SapysolPubkey,
+                 balanceThreshold:   int = 0,
                  txParams:           SapysolTxParams          = SapysolTxParams(),
                  swapParams:         SapysolJupagParams       = SapysolJupagParams(),
                  connectionOverride: List[Union[str, Client]] = None,
@@ -46,6 +49,7 @@ class SapysolTokenSelloff:
         self.CONNECTION:          Client                   = connection
         self.TOKEN_TO_SELL:       SapysolToken             = SapysolToken(connection=connection, tokenMint=MakePubkey(tokenToSell))
         self.TOKEN_TO_BUY:        SapysolToken             = SapysolToken(connection=connection, tokenMint=MakePubkey(tokenToBuy ))
+        self.BALANCE_THRESHOLD:   int                      = balanceThreshold
         self.TX_PARAMS:           SapysolTxParams          = txParams
         self.SWAP_PARAMS:         SapysolJupagParams       = swapParams
         self.CONNECTION_OVERRIDE: List[Union[str, Client]] = connectionOverride
@@ -58,13 +62,14 @@ class SapysolTokenSelloff:
     #
     def SellSingle(self, wallet: Keypair):
         while True:
-            balance:   int = self.TOKEN_TO_SELL.GetWalletBalanceLamports(walletAddress=wallet.pubkey())
-            delimiter: int = 10**self.TOKEN_TO_SELL.TOKEN_INFO.decimals
-            if balance <= 0:
-                logging.info(f"Wallet: {str(wallet.pubkey()):>44}; balance: 0, skipping...")
+            balance:    int = self.TOKEN_TO_SELL.GetWalletBalanceLamports(walletAddress=wallet.pubkey())
+            delimiter:  int = 10**self.TOKEN_TO_SELL.TOKEN_INFO.decimals
+            balanceStr: str = f"{0:>{self.TOKEN_TO_SELL.TOKEN_INFO.decimals+2}}" if balance == 0 else f"{balance / delimiter:.{self.TOKEN_TO_SELL.TOKEN_INFO.decimals}f}"
+            if balance <= self.BALANCE_THRESHOLD:
+                logger.info(f"Wallet: {str(wallet.pubkey()):>44}; balance: {balanceStr}, skipping...")
                 break
             else:
-                logging.info(f"Wallet: {str(wallet.pubkey()):>44}; balance: {balance / delimiter}, trying to sell all...")
+                logger.info(f"Wallet: {str(wallet.pubkey()):>44}; balance: {balanceStr}, trying to sell all...")
 
             quote = SapysolJupag.GetSwapQuote(connection = self.CONNECTION,
                                               tokenFrom  = self.TOKEN_TO_SELL.TOKEN_MINT,

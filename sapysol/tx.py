@@ -34,6 +34,8 @@ import base64
 import logging
 import time
 
+logger = logging.getLogger("sapysol")
+
 # ================================================================================
 #
 @dataclass
@@ -176,12 +178,12 @@ class SapysolTx:
 
         if txParams.maxSecondsPerTx is not None and (datetime.now() - self.SENT_DT).seconds >= txParams.maxSecondsPerTx:
             self.CONFIRMED_RESULT = SapysolTxStatus.TIMEOUT
-            logging.info(f"{self.CONFIRMED_RESULT.name}: https://solscan.io/tx/{self.TXID}")
+            logger.info(f"{self.CONFIRMED_RESULT.name}: https://solscan.io/tx/{self.TXID}")
             return self
 
         blockheight = (connection.get_block_height()).value
         if blockheight < self.LAST_VALID_BLOCKHEIGHT:
-            logging.debug(f"SapysolTx::Send() blockheight={blockheight}; lastValidBlockHeight={self.LAST_VALID_BLOCKHEIGHT}; {self.LAST_VALID_BLOCKHEIGHT-blockheight}")
+            logger.debug(f"SapysolTx::Send() blockheight={blockheight}; lastValidBlockHeight={self.LAST_VALID_BLOCKHEIGHT}; {self.LAST_VALID_BLOCKHEIGHT-blockheight}")
 
             txOpts: TxOpts = TxOpts(skip_confirmation = txParams.skipConfirmation, 
                                     skip_preflight    = txParams.skipPreFlight, 
@@ -245,7 +247,7 @@ class SapysolTx:
         if self.CONFIRMED_TX is not None:
             self.CONFIRMED_RESULT = SapysolTxStatus.SUCCESS if self.CONFIRMED_TX.meta.err is None \
                                else SapysolTxStatus.FAIL
-            logging.info(f"{self.CONFIRMED_RESULT.name}: https://solscan.io/tx/{self.TXID}")
+            logger.info(f"{self.CONFIRMED_RESULT.name}: https://solscan.io/tx/{self.TXID}")
             return self.CONFIRMED_RESULT
 
         try:
@@ -260,7 +262,7 @@ class SapysolTx:
         except KeyboardInterrupt as e:
             raise
         except Exception as e:
-            logging.error(e, exc_info=(type(e), e, e.__traceback__))
+            logger.error(e, exc_info=(type(e), e, e.__traceback__))
 
         return self.CONFIRMED_RESULT
 

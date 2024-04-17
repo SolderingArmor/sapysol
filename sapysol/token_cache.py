@@ -33,6 +33,8 @@ from  .ix                     import *
 import os
 import logging
 
+logger = logging.getLogger("sapysol")
+
 # =============================================================================
 # 
 SAPYSOL_TOKEN_VERSION: int = 1
@@ -69,7 +71,7 @@ class TokenCache:
         try:
             tokenCachePath: str = TokenCache.__TokenCachePath()
             tokenInfoFile:  str = TokenCache.__TokenFilename(tokenMint=tokenMint)
-            logging.debug(f"Loading token info from file: {tokenInfoFile}")
+            logger.debug(f"Loading token info from file: {tokenInfoFile}")
             if not os.path.isfile(tokenInfoFile):
                 return None
             with open(tokenInfoFile) as f:
@@ -98,7 +100,7 @@ class TokenCache:
         tokenCachePath: str = TokenCache.__TokenCachePath()
         tokenInfoFile:  str = TokenCache.__TokenFilename(tokenMint=tokenMint)
 
-        logging.debug(f"Loading token info from Solana Node for token: {str(tokenMint)}")
+        logger.debug(f"Loading token info from Solana Node for token: {str(tokenMint)}")
         accountInfo: Account  = connection.get_account_info(pubkey=MakePubkey(tokenMint)).value
         mintInfo:    MintInfo = Token(conn       = connection, 
                                       pubkey     = MakePubkey(tokenMint),

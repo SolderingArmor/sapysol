@@ -26,6 +26,8 @@ from   dataclasses    import dataclass
 import logging
 import requests
 
+logger = logging.getLogger("sapysol")
+
 # =============================================================================
 # 
 @dataclass
@@ -73,11 +75,11 @@ class SapysolJupag:
 
         if "error" in coinQuote:
             if coinQuote["error"] in ["Could not find any route", "The route plan does not consume all the amount, please lower your amount"]:
-                logging.warning(f"Swap {str(tokenFrom)} to {str(tokenTo)}: NO ROUTES; bailing...")
+                logger.warning(f"Swap {str(tokenFrom)} to {str(tokenTo)}: NO ROUTES; bailing...")
                 return None
             else:
-                logging.warning(f"Swap {str(tokenFrom)} to {str(tokenTo)}: UNKNOWN ERROR; bailing...")
-                logging.warning(coinQuote["error"])
+                logger.warning(f"Swap {str(tokenFrom)} to {str(tokenTo)}: UNKNOWN ERROR; bailing...")
+                logger.warning(coinQuote["error"])
                 return None
 
         outLamports = int(coinQuote["outAmount"])
@@ -88,10 +90,10 @@ class SapysolJupag:
             finalDesiredOutAmountLamports = int(desiredOutAmount) if outAmountInLamports else int(desiredOutAmount * 10**TO.decimals)
             finalDesiredOutAmount         = int(desiredOutAmount) if outAmountInLamports else int(desiredOutAmount * 10**TO.decimals)
             if outLamports < finalDesiredOutAmountLamports:
-                logging.warning(f"{tokenTo} desiredOutAmount: {round(finalDesiredOutAmount, 4):.4f} and outAmount: {round(outAmount, 4):.4f}! bailing...")
+                logger.warning(f"{tokenTo} desiredOutAmount: {round(finalDesiredOutAmount, 4):.4f} and outAmount: {round(outAmount, 4):.4f}! bailing...")
                 return None
 
-        logging.debug(f"Selling {inAmount} of {tokenFrom} for {outAmount} of {tokenTo}...")
+        logger.debug(f"Selling {inAmount} of {tokenFrom} for {outAmount} of {tokenTo}...")
         return coinQuote
 
     # ========================================
@@ -111,8 +113,8 @@ class SapysolJupag:
         }
         tx = requests.post(url = "https://quote-api.jup.ag/v6/swap", json=paramsSwap).json()
         if not "swapTransaction" in tx:
-            logging.warning(f"tx: {tx}")
-            logging.warning(f"No swapTransaction in tx! bailing...")
+            logger.warning(f"tx: {tx}")
+            logger.warning(f"No swapTransaction in tx! bailing...")
             return None
         return tx["swapTransaction"]
 

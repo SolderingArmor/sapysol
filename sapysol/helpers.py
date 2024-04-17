@@ -56,7 +56,8 @@ def SetupLogging(fileName: str = "log.log",
                  logLevel: int = logging.INFO):
     EnsurePathExists(os.path.dirname(fileName))
     logging.basicConfig(filename=fileName, filemode="a", format=format, datefmt=dateFmt, level=logLevel)
-    logging.getLogger().addHandler(logging.StreamHandler())
+    logging.getLogger("sapysol").addHandler(logging.StreamHandler())
+    logging.getLogger("sapysol").setLevel(logLevel)
 
 # ================================================================================
 #
